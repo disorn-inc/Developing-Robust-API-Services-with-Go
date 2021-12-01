@@ -1,11 +1,12 @@
 package main
 
-import ( 
+import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/todo" 
+	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/auth"
+	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/todo"
 )
 
 func main() {
@@ -16,6 +17,8 @@ func main() {
 
 	db.AutoMigrate(&todo.Todo{})
 	r := gin.Default()
+
+	r.GET("/tokenz", auth.AccessToken)
 	
 	handler := todo.NewTodoHandler(db)
 	r.POST("/todos", handler.NewTask)

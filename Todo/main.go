@@ -14,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"golang.org/x/time/rate"
 
 	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/auth"
 	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/todo"
@@ -45,9 +46,10 @@ func main() {
 
 	db.AutoMigrate(&todo.Todo{})
 	r := gin.Default()
-	r.GET("/health2", func(c *gin.Context) {
+	r.GET("/healthz", func(c *gin.Context) {
 		c.Status(200)
 	})
+	r.GET("/limitz", limitedHandler)
 	r.GET("/x", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"buildcommit": buildcommit,
@@ -89,4 +91,16 @@ func main() {
 	if err := s.Shutdown(timeoutCtx); err != nil {
 		fmt.Println(err)
 	}
+}
+
+var limiter = rate.NewLimiter(5, 5)
+
+func limitedHandler(c *gin.Context) {
+	if !limiter.Allow() {
+		c.AbortWithStatus(http.StatusTooManyRequests)
+		return
+	}
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
 }

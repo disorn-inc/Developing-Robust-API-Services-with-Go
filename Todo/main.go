@@ -19,10 +19,23 @@ import (
 	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/todo"
 )
 
+var (
+	buildcommit = "dev"
+	buildtime = time.Now().String()
+)
+
 func main() {
-	err := godotenv.Load("local.env")
+	_, err := os.Create("/tmp/live")
+
 	if err != nil {
-		log.Panicln("please consider environment variable: %s", err)
+		log.Fatal(err)
+	}
+
+	defer os.Remove("/tmp/live")
+
+	err = godotenv.Load("local.env")
+	if err != nil {
+		log.Println("please consider environment variable: %s", err)
 	}
 
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
@@ -32,6 +45,15 @@ func main() {
 
 	db.AutoMigrate(&todo.Todo{})
 	r := gin.Default()
+	r.GET("/health2", func(c *gin.Context) {
+		c.Status(200)
+	})
+	r.GET("/x", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"buildcommit": buildcommit,
+			"buildtime": buildtime,
+		})
+	})
 
 	r.GET("/tokenz", auth.AccessToken(os.Getenv("SIGN")))
 

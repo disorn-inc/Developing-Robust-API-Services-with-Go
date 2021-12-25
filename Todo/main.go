@@ -15,6 +15,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"golang.org/x/time/rate"
+	"github.com/gin-contrib/cors"
 
 	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/auth"
 	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/todo"
@@ -46,6 +47,17 @@ func main() {
 
 	db.AutoMigrate(&todo.Todo{})
 	r := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"http://localhost:8080",
+	}
+	config.AllowHeaders = []string{
+		"Origin",
+		"Authorization",
+		"TransactionID",
+	}
+	r.Use(cors.New(config))
+
 	r.GET("/healthz", func(c *gin.Context) {
 		c.Status(200)
 	})
@@ -63,6 +75,8 @@ func main() {
 	
 	handler := todo.NewTodoHandler(db)
 	protected.POST("/todos", handler.NewTask)
+	protected.GET("/todos", handler.List)
+	protected.DELETE("/todos:id", handler.Remove)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

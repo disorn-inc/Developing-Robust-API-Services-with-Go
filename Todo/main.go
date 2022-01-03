@@ -72,8 +72,10 @@ func main() {
 	r.GET("/tokenz", auth.AccessToken(os.Getenv("SIGN")))
 
 	protected := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
+
+	gormStore := todo.NewGormStore(db)
 	
-	handler := todo.NewTodoHandler(db)
+	handler := todo.NewTodoHandler(gormStore)
 	protected.POST("/todos", handler.NewTask)
 	protected.GET("/todos", handler.List)
 	protected.DELETE("/todos:id", handler.Remove)

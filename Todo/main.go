@@ -76,7 +76,7 @@ func main() {
 	gormStore := todo.NewGormStore(db)
 	
 	handler := todo.NewTodoHandler(gormStore)
-	protected.POST("/todos", handler.NewTask)
+	protected.POST("/todos", todo.NewGinHandler(handler.NewTask))
 	protected.GET("/todos", handler.List)
 	protected.DELETE("/todos:id", handler.Remove)
 

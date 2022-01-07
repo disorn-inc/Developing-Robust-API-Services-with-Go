@@ -19,6 +19,8 @@ import (
 
 	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/auth"
 	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/todo"
+	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/store"
+	"github/disorn-inc/Developing-Robust-API-Services-with-Go/Todo/router"
 )
 
 var (
@@ -73,12 +75,12 @@ func main() {
 
 	protected := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
 
-	gormStore := todo.NewGormStore(db)
+	gormStore := store.NewGormStore(db)
 	
 	handler := todo.NewTodoHandler(gormStore)
-	protected.POST("/todos", todo.NewGinHandler(handler.NewTask))
-	protected.GET("/todos", todo.NewGinHandler(handler.List))
-	protected.DELETE("/todos/:id", todo.NewGinHandler(handler.Remove))
+	protected.POST("/todos", router.NewGinHandler(handler.NewTask))
+	protected.GET("/todos", router.NewGinHandler(handler.List))
+	protected.DELETE("/todos/:id", router.NewGinHandler(handler.Remove))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

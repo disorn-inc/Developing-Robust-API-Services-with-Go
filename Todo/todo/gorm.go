@@ -13,3 +13,11 @@ func NewGormStore(db *gorm.DB) *GormStore {
 func (s *GormStore) New(todo *Todo) error {
 	return s.db.Create(todo).Error
 }
+
+func (s *GormStore) Find(todos *[]Todo) error {
+	return s.db.Find(todos).Error
+}
+
+func (s *GormStore) Delete(t *Todo, id int) error {
+	return s.db.Delete(t, id).Error
+}

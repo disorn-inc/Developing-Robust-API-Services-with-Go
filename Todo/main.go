@@ -77,8 +77,8 @@ func main() {
 	
 	handler := todo.NewTodoHandler(gormStore)
 	protected.POST("/todos", todo.NewGinHandler(handler.NewTask))
-	protected.GET("/todos", handler.List)
-	protected.DELETE("/todos:id", handler.Remove)
+	protected.GET("/todos", todo.NewGinHandler(handler.List))
+	protected.DELETE("/todos/:id", todo.NewGinHandler(handler.Remove))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

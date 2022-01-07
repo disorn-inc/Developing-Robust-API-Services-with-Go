@@ -31,6 +31,10 @@ func (c *MyContext) Audience() string {
 	return ""
 }
 
+func (c *MyContext) Param(s string) string {
+	return c.Context.Param(s)
+}
+
 func NewGinHandler(handler func(Context)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		handler(NewMyContext(c))
